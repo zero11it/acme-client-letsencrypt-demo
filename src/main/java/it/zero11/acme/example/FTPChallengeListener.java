@@ -40,7 +40,7 @@ public class FTPChallengeListener implements AcmeChallengeListener {
 	}
 
 	@Override
-	public boolean challengeSimpleHTTP(String domain, String token, String challengeURI, String challengeBody) {
+	public boolean challengeHTTP01(String domain, String token, String challengeURI, String challengeBody) {
 		return createChallengeFiles(token, challengeBody);
 	}
 

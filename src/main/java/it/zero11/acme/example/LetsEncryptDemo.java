@@ -17,6 +17,7 @@
 package it.zero11.acme.example;
 
 import it.zero11.acme.Acme;
+import it.zero11.acme.AcmeChallengeListener;
 import it.zero11.acme.storage.impl.DefaultCertificateStorage;
 
 import java.io.IOException;
@@ -26,23 +27,44 @@ import org.bouncycastle.x509.util.StreamParsingException;
 
 public class LetsEncryptDemo {
 	private static final String CA_STAGING_URL = "https://acme-staging.api.letsencrypt.org/acme";
+	private static final String CA_PRODUCTION_URL = "https://acme-v01.api.letsencrypt.org/acme";
 
 	public static void main(String args[]) throws IOException, OperatorCreationException, InterruptedException, StreamParsingException{
-		if (args.length != 5){
-			System.out.println("Usage: java -jar acme-client-letsencrypt-demo.jar <domain> <ftpuser> <ftppassword> <ftprootfolder> <agreementURL>");
-			System.out.println("The current Let's Encrypt Terms and Conditions you need to agree can be found here: https://letsencrypt.org/documents/LE-SA-v1.0-June-23-2015.pdf");
+		if (args.length != 7){
+			System.out.println("Usage: java -jar acme-client-letsencrypt-demo.jar <domain> <protocol> <(s)ftpuser> <(s)ftppassword> <(s)ftprootfolder> <agreementURL> <email>");
+			System.out.println("Currently supported protocols are sftp and ftp");
+			System.out.println("The current Let's Encrypt Terms and Conditions you need to agree can be found here: https://letsencrypt.org/documents/LE-SA-v1.0.1-July-27-2015.pdf");
+		}else if (!args[6].startsWith("mailto:")){
+			System.out.println("WARNING: contact must start with mailto: ");
 		}else{
 			System.out.println("WARNING: this sample application is using the Let's Encrypt staging API. Certificated created with this application won't be trusted.");
 			System.out.println("By using this application you agree to Let's Encrypt Terms and Conditions");
-			System.out.println(args[4]);
+			System.out.println(args[5]);
 			System.out.println("Press y if you agree to continue");
 			int response = System.in.read();
 			if (response == 'y' || response == 'Y'){
-				Acme acme = new Acme(CA_STAGING_URL,
-						new DefaultCertificateStorage(),
-						new FTPChallengeListener(args[0], args[1], args[2], args[3]), true);
+				String port = "22";
+				if (args[0].contains(":")){
+					port = args[0].split(":")[1];
+					args[0] = args[0].split(":")[0];
+				}
 
-				acme.getCertificate(args[0], args[4], null);
+				AcmeChallengeListener challengeListener;
+				switch (args[1]){
+				case "ftp":
+					challengeListener = new FTPChallengeListener(args[0], args[2], args[3], args[4]);
+					break;
+				case "sftp":
+					challengeListener = new SFTPChallengeListener(args[0], Integer.parseInt(port), args[2], args[3], args[4]);
+					break;
+				default:
+					System.out.println("Unknown protocol: " + args[1]);
+					return;
+				}
+
+				Acme acme = new Acme(CA_STAGING_URL, new DefaultCertificateStorage(), challengeListener, true);
+
+				acme.getCertificate(args[0], args[5], new String[]{args[6]});
 			}
 		}
 	}
