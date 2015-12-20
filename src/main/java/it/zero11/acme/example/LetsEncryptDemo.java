@@ -49,22 +49,23 @@ public class LetsEncryptDemo {
 					args[0] = args[0].split(":")[0];
 				}
 
+				String[] domains = args[0].split(",");
 				AcmeChallengeListener challengeListener;
 				switch (args[1]){
 				case "ftp":
-					challengeListener = new FTPChallengeListener(args[0], args[2], args[3], args[4]);
+					challengeListener = new FTPChallengeListener(domains[0], args[2], args[3], args[4]);
 					break;
 				case "sftp":
-					challengeListener = new SFTPChallengeListener(args[0], Integer.parseInt(port), args[2], args[3], args[4]);
+					challengeListener = new SFTPChallengeListener(domains[0], Integer.parseInt(port), args[2], args[3], args[4]);
 					break;
 				default:
 					System.out.println("Unknown protocol: " + args[1]);
 					return;
 				}
 
-				Acme acme = new Acme(CA_STAGING_URL, new DefaultCertificateStorage(true), challengeListener, true);
+				Acme acme = new Acme(CA_STAGING_URL, new DefaultCertificateStorage(true), true, true);
 
-				acme.getCertificate(args[0], args[5], new String[]{args[6]});
+				acme.getCertificate(domains, args[5], new String[]{args[6]}, challengeListener);
 			}
 		}
 	}
