@@ -62,7 +62,7 @@ public class LetsEncryptDemo {
 					return;
 				}
 
-				Acme acme = new Acme(CA_STAGING_URL, new DefaultCertificateStorage(), challengeListener, true);
+				Acme acme = new Acme(CA_STAGING_URL, new DefaultCertificateStorage(true), challengeListener, true);
 
 				acme.getCertificate(args[0], args[5], new String[]{args[6]});
 			}
