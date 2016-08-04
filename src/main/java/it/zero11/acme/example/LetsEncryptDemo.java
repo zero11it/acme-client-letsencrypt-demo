@@ -28,12 +28,13 @@ import org.bouncycastle.x509.util.StreamParsingException;
 public class LetsEncryptDemo {
 	private static final String CA_STAGING_URL = "https://acme-staging.api.letsencrypt.org/acme";
 	private static final String CA_PRODUCTION_URL = "https://acme-v01.api.letsencrypt.org/acme";
+	private static final String AGREEMENT_URL = "https://letsencrypt.org/documents/LE-SA-v1.1.1-August-1-2016.pdf";
 
 	public static void main(String args[]) throws IOException, OperatorCreationException, InterruptedException, StreamParsingException{
 		if (args.length != 7){
 			System.out.println("Usage: java -jar acme-client-letsencrypt-demo.jar <domain> <protocol> <(s)ftpuser> <(s)ftppassword> <(s)ftprootfolder> <agreementURL> <email>");
 			System.out.println("Currently supported protocols are sftp and ftp");
-			System.out.println("The current Let's Encrypt Terms and Conditions you need to agree can be found here: https://letsencrypt.org/documents/LE-SA-v1.0.1-July-27-2015.pdf");
+			System.out.println(String.format("The current Let's Encrypt Terms and Conditions you need to agree can be found here: %s", AGREEMENT_URL));
 		}else if (!args[6].startsWith("mailto:")){
 			System.out.println("WARNING: contact must start with mailto: ");
 		}else{
